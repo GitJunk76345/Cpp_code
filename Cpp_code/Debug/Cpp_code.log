@@ -1,0 +1,5 @@
+﻿  main.cpp
+h:\programs\projects\cpp_code\cpp_code\headers\lifo.h(52): warning C4715: 'lifo<char>::push': not all control paths return a value
+h:\programs\projects\cpp_code\cpp_code\headers\lifo.h(61): warning C4715: 'lifo<char>::pop': not all control paths return a value
+  Cpp_code.vcxproj -> H:\programs\Projects\Cpp_code\Debug\Cpp_code.exe
+  Cpp_code.vcxproj -> H:\programs\Projects\Cpp_code\Debug\Cpp_code.pdb (Partial PDB)
