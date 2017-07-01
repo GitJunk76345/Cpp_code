@@ -1,6 +1,6 @@
 #pragma once
 /* 
-	Template based lifo (Last In First Out) container class
+	Template based, fixed capacity lifo (Last In First Out) container class
 */
 
 #include <iostream>
@@ -11,6 +11,7 @@ class lifo
 	size_t height;
 	size_t capacity;
 	T*     data;
+
 public:
 	lifo(size_t size) : capacity(size), height(0) { data = new T[capacity];	}
 	~lifo() { delete[] data; }
@@ -67,9 +68,9 @@ public:
 		else
 			std::cerr << "Stack empty\n";	//error
 	}
-	size_t getCapacity() { return capacity; }
-	size_t getFree() { return capacity - height; }
-	size_t getHeight() { return height; }
+	size_t getCapacity() const { return capacity; }
+	size_t getFree() const { return capacity - height; }
+	size_t getHeight() const { return height; }
 	bool isEmpty() const { return height == 0; }
 	bool isFull() const { return height == capacity; }
 };
@@ -79,4 +80,5 @@ template <class T>
 void dumpstack(lifo<T>& stack) {
 	while (!stack.isEmpty())
 		std::cout << stack.pop();
+	std::cout << std::endl;
 }

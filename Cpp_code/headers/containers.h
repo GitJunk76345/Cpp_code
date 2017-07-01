@@ -5,3 +5,4 @@
 */
 
 #include "headers\lifo.h"
+#include "headers\fifo.h"
