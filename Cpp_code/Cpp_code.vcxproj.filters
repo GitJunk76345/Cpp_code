@@ -24,6 +24,9 @@
     <ClInclude Include="headers\fifo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\bst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

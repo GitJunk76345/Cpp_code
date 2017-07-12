@@ -111,6 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="headers\bst.h" />
     <ClInclude Include="headers\containers.h" />
     <ClInclude Include="headers\fifo.h" />
     <ClInclude Include="headers\lifo.h" />

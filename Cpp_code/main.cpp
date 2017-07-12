@@ -9,6 +9,7 @@
 
 void playlifo(void);
 void playfifo(void);
+void playbst(void);
 
 int main(int argc, char *argv[])
 {
@@ -21,13 +22,13 @@ int main(int argc, char *argv[])
 		system("CLS");
 		//getline(cin, dump);
 		cout << "Container toy - select type of container to play:\n\n";
-		cout << "1) lifo(stack)\n2) fifo(queue)\n3) other(todo)\n\n0) exit\n";
+		cout << "1) lifo(stack)\n2) fifo(queue)\n3) bst(binary search tree)\n\n0) exit\n";
 		cin >> ch;
 		switch (ch)
 		{
 		case '1': playlifo(); break;
 		case '2': playfifo(); break;
-		case '3': cout << "COMMING SOON\n"; break;
+		case '3': playbst(); break;
 		default: return EXIT_SUCCESS; break;
 		}
 		system("PAUSE");
@@ -75,4 +76,31 @@ void playfifo(void)
 	cout << "dumping queue : \n";
 	dumpqueue(f);
 	cout << "f.getLenght() " << f.getLenght() << endl;
+}
+void playbst(void)
+{
+	using namespace std;
+	string dump;
+	char ch;
+	bst<char> b;
+
+	getline(cin, dump);
+	cout << "b.size() " << b.size() << endl;
+	cout << "b.nodeCount() " << b.nodeCount() << endl;
+	cout << "Insert Your chars to tree:\n";
+
+	while ((ch = getchar()) != 10)
+		b.add(ch);
+
+	cout << "b.size() " << b.size() << endl;
+	cout << "b.nodeCount() " << b.nodeCount() << endl;
+	cout << "b.min() " << b.min() << endl;
+	cout << "b.max() " << b.max() << endl;
+	getline(cin, dump);
+	while ((ch = getchar()) != 10)
+		cout << "b.search('" << ch << "') " << b.search(ch) << endl;
+
+	cout << "print tree : \n";
+	b.print();
+	cout << endl;
 }
