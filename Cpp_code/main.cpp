@@ -98,8 +98,11 @@ void playbst(void)
 	cout << "b.max() " << b.max() << endl;
 	getline(cin, dump);
 	while ((ch = getchar()) != 10)
+	{
 		cout << "b.search('" << ch << "') " << b.search(ch) << endl;
-
+		cout << "b.next('" << ch << "') " << b.next(ch) << endl;
+		cout << "b.prev('" << ch << "') " << b.prev(ch) << endl << endl;
+	}
 	cout << "print tree : \n";
 	b.print();
 	cout << endl;
