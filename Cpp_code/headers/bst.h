@@ -1,13 +1,11 @@
 #pragma once
 /*
-Template based, BST (Binary Search Tree) container class
+	Template based, BST (Binary Search Tree) container class
 */
 
 /*
 TODO LIST:
- removing
- bst destructor
- prev/next <--
+ removing nodes <--
  universal traversal method?
  AVL
 */
@@ -17,29 +15,56 @@ TODO LIST:
 template <typename K>
 struct node
 {
-	node<K> * up;
-	node<K> * left;
-	node<K> * right;
-
-	K key;
-	size_t occurence;      // number of K keys in the node
+	node<K> * up;          // parrent node
+	node<K> * left;        // left child
+	node<K> * right;       // right
+	K key;                 // node content
+	size_t occurence;      // number of keys in the node
 	
 	node(K nkey) : up(nullptr), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
 	node(K nkey, node * newup) : up(newup), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
 
-	node<K> * search(const K& key) {
-		node<K> * nod = this;          // start from this node
+	node<K> * search(const K& searchkey) {
+		/*
+			Searches for node containikng searchkey, starting from this node
+		*/
+		node<K> * nod = this;
 		while (nod != nullptr)
 		{
-			if (nod->key == key)
+			if (nod->key == searchkey)
 				return nod;
-			else if (nod->key > key)
+			else if (nod->key > searchkey)
 				nod = nod->left;
-			else if (nod->key < key)
+			else if (nod->key < searchkey)
 				nod = nod->right;
 		}
 		return nullptr;                // key was not found in the tree
 	}
+	node<K> * searchparrent(const K& searchkey) {
+		/*
+			Searches for parrent node of node that would contain searchkey, starting from this node
+		*/
+		node<K> * nod = this;
+		while (nod != nullptr)
+		{
+			if (nod->key == searchkey)
+				return nod->up;
+			else if (nod->key > searchkey)
+			{
+				if ( nod->left == nullptr)
+					return nod;
+				nod = nod->left;
+			}
+			else if (nod->key < searchkey)
+			{
+				if ( nod->right == nullptr)
+					return nod;
+				nod = nod->right;
+			}
+		}
+	}
+	
+	// TODO
 	void remove() {
 	/*
 		Removes node from tree structure - TODO - resolve handling root in bst class 
@@ -47,9 +72,22 @@ struct node
 		// TODO
 		return;
 	}
-	node<K> * next(void)  {
+
+	node<K> * min(void) {
+		node<K> * nod = this;
+		while (nod->left != nullptr)
+			nod = nod->left;
+		return nod;
+	}
+	node<K> * max(void) {
+		node<K> * nod = this;
+		while (nod->right != nullptr)
+			nod = nod->right;
+		return nod;
+	}
+	node<K> * next(bool subtreeonly = false)  {
 		/*
-			returns next in-order node or this, if there is no next node 
+			returns next in-order node or nullptr, if there is no next node 
 		*/
 		node<K> * tmpnode = this;            // this is last in-order node
 		if (tmpnode->right != nullptr)       // is right child present
@@ -69,13 +107,15 @@ struct node
 					upnode = upnode->up;
 				if (upnode->up != nullptr && upnode->up->left == upnode)
 					tmpnode = upnode->up;
+				else
+					tmpnode = nullptr;
 			}	
 		}
 		return tmpnode;
 	}
-	node<K> * prev(void)  {
+	node<K> * prev(bool subtreeonly = false)  {
 		/*
-		returns previous in-order node or this, if there is no previous node
+		returns previous in-order node or nullptr, if there is no previous node
 		*/
 		node<K> * tmpnode = this;            // this is first in-order node
 		if (tmpnode->left != nullptr)        // is left child present
@@ -95,27 +135,45 @@ struct node
 					upnode = upnode->up;
 				if (upnode->up != nullptr && upnode->up->right == upnode)
 					tmpnode = upnode->up;
+				else
+					tmpnode = nullptr;
 			}
 		}
 		return tmpnode;
 	}
-	K& next(const K& searchkey) {
+	node<K> * next(const K& searchkey) {
 		/*
-			returns key to smallest node larger than searchkey or searchkey, if there is no larger node
+			returns smallest node larger than searchkey or nullptr, if there is no larger node
 		*/
-		node<K> * tmpnode = this;            // this is last in-order node
-		if (tmpnode->right != nullptr)       // is right child present
-		{
-			tmpnode = tmpnode->right;        // right child is the next in-order node
-			while (tmpnode->left != nullptr)
-				tmpnode = tmpnode->left;     // left offspring of right child is the next in-order node
+
+		node<K> * nod = search(searchkey);
+		if (nod == nullptr) {
+			//find parrent node to would be nod
+			nod = searchparrent(searchkey);
+			if (nod->key > searchkey)           // if it's larger then it's the next node
+				return nod;
+			else
+				return nod->next();				// nod is previous node, find it's in-order successor
 		}
 		else
-		{
-			if (this->up != nullptr && this->up->left == this)
-				tmpnode = this->up;          // this node's parrent is the next in-order node
+			return nod->next();					// found node for key - return in-order successor
+	}
+	node<K> * prev(const K& searchkey) {
+		/*
+			returns largest node smaller than searchkey or nullptr, if there is no smaller node
+		*/
+
+		node<K> * nod = search(searchkey);
+		if (nod == nullptr) {
+			//find parrent node to would be nod
+			nod = searchparrent(searchkey);
+			if (nod->key < searchkey)           // if it's smaller then it's the prev node
+				return nod;
+			else
+				return nod->prev();				// nod is next node, find it's in-order predecessor
 		}
-		return tmpnode->key;
+		else
+			return nod->prev();					// found node for key - return in-order predecessor
 	}
 
 	void print(size_t depth) const {
@@ -157,13 +215,54 @@ class bst
 	size_t nodes;	  // number of nodes in tree
 	size_t elements;  // number of elements - sum of all occurences in all nodes
 	node<K> * root;   // root node
+
 public:
 	bst() : nodes(0), elements(0), root(nullptr) {}
-	//TODO
 	~bst() {
-		//delete nodes while traversing tree post-order
+	/*
+		Deletes all nodes through post-order traversal
+	*/
+		node<K> * deleted = root;
+		node<K> * temp = nullptr;
+		size_t level = 0;
+
+		while (true)
+		{
+			if (deleted->left != nullptr)      // retry with left subnode
+			{
+				++level;
+				deleted = deleted->left;
+				continue;
+			}
+			if (deleted->right != nullptr)      // retry with right subnode
+			{
+				++level;
+				deleted = deleted->right;
+				continue;
+			}
+			// deletion of node that has no subnodes begins here
+			if (deleted->up != nullptr)            // if this isn't root node...
+			{
+				if (deleted->up->left == deleted)  // is deleted node left subnode?
+				{
+					deleted->up->left = nullptr;   // cut link from this node's parrent to this node
+				}
+				if (deleted->up->right == deleted)  // is deleted node right subnode?
+				{
+					deleted->up->right = nullptr;   // cut link from this node's parrent to this node
+				}
+				temp = deleted;                    
+				deleted = deleted->up;             // in next iteration continue with parrent node
+				delete temp;
+				--level;
+			}
+			else                                   // processing root node that has no children
+			{
+				delete deleted;
+				break;                             // all nodes in tree has been deleted by now
+			}
+		}
 	}
-	//WORKING
 	size_t size() const {
 		return elements;
 	}
@@ -171,8 +270,11 @@ public:
 		return nodes;
 	}
 	
-	//WORKING YET LOOKS UGLY NON-COMPACT
-	size_t add(const K& key) { // adds element and returns amount of such lements in tree
+	//WORKING YET LOOKS UGLY
+	size_t add(const K& key) {
+	/*
+		Adds element and returns amount of such elements in tree
+	*/
 		bool exist = false;
 		node<K> * nod = root;
 		node<K> * nodparrent = nullptr;
@@ -206,9 +308,12 @@ public:
 		++elements;
 		return true;
 	}
-
+	
 	//TODO
-	bool fetch(const K& searchkey) { // decrements occurende and removes node while occurence == 0
+	bool fetch(const K& searchkey) {
+		/*
+			Removes 1 key occurence from tree and returns true or false if there is nothing to remove
+		*/
 		// TODO
 		if (true)
 			return true;
@@ -217,74 +322,76 @@ public:
 	}
 		
 	//WORKING
-	void print(int order = 0) const { // ORDER -1 - pre-order, 0 - in-order, 1 - post-order
+	void print(int order = 0) const {
+	/*
+		Prints whole tree in specified way
+		-1 - pre-order, 0 - in-order, 1 - post-order
+	*/
 		if (root == nullptr)
 			return;
 		root->printall(order, 0);
 		return;		
 	}
-	size_t search(const K& key) const {
-		const node<K> * nod = root->search(key);
+	size_t search(const K& searchkey) const {
+		/*
+			Returns number of searchkey occurence in tree
+		*/
+		const node<K> * nod = root->search(searchkey);
 		if (nod == nullptr)
 			return 0;
 		else
 			return nod->occurence;
 	}
-
-	//TODO
 	const K& next(const K& searchkey) {
 		/*
-	SHOULD		returns key to smallest node larger than searchkey or searchkey, if there is no larger node
+			Returns key to smallest node larger than searchkey or searchkey, if there is no larger node
 		*/
 		if (root == nullptr)
 		{
 			std::cerr << "error - tree is empty\n";
 			return K();
 		}
-		node<K> * nod = root->search(searchkey);
+		node<K> * nod = root->next(searchkey);
 		if (nod == nullptr)
 		{
-			std::cerr << "error - no node before " << root->key << " node\n";
+			std::cerr << "error - no node after " << searchkey << " node\n";
 			return K();
 		}
-		nod = nod->next();
 		return nod->key;
 	}
-	const K& prev(const K& key) {
+	const K& prev(const K& searchkey) {
+		/*
+			Returns key to smallest node larger than searchkey or searchkey, if there is no larger node
+		*/
 		if (root == nullptr)
 		{
 			std::cerr << "error - tree is empty\n";
 			return K();
 		}
-		node<K> * nod = root->search(key);
+		node<K> * nod = root->prev(searchkey);
 		if (nod == nullptr)
 		{
-			std::cerr << "error - no node before " << root->key << " node\n";
+			std::cerr << "error - no node before " << searchkey << " node\n";
 			return K();
 		}
-		nod = nod->prev();
 		return nod->key;
 	}
 	
 	//WORKING YET HAS NO EXCEPTIONS FOR EMPTY TREE
 	const K& min() { // UGLY
-		node<K> * nod = root;
 		if (root == nullptr)
 		{
 			std::cerr << "Error: bst is empty\n";
 		}
-		while (nod->left != nullptr)
-			nod = nod->left;
-		return nod->key;
+		else
+			return root->min()->key;
 	}
 	const K& max() { // UGLY
-		node<K> * nod = root;
 		if (root == nullptr)
 		{
 			std::cerr << "Error: bst is empty\n";
 		}
-		while (nod->right != nullptr)
-			nod = nod->right;
-		return nod->key;
+		else
+			return root->max()->key;
 	}
 };

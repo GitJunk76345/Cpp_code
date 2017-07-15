@@ -82,28 +82,30 @@ void playbst(void)
 	using namespace std;
 	string dump;
 	char ch;
-	bst<char> b;
-
-	getline(cin, dump);
-	cout << "b.size() " << b.size() << endl;
-	cout << "b.nodeCount() " << b.nodeCount() << endl;
-	cout << "Insert Your chars to tree:\n";
-
-	while ((ch = getchar()) != 10)
-		b.add(ch);
-
-	cout << "b.size() " << b.size() << endl;
-	cout << "b.nodeCount() " << b.nodeCount() << endl;
-	cout << "b.min() " << b.min() << endl;
-	cout << "b.max() " << b.max() << endl;
-	getline(cin, dump);
-	while ((ch = getchar()) != 10)
 	{
-		cout << "b.search('" << ch << "') " << b.search(ch) << endl;
-		cout << "b.next('" << ch << "') " << b.next(ch) << endl;
-		cout << "b.prev('" << ch << "') " << b.prev(ch) << endl << endl;
+		bst<char> b;
+
+		getline(cin, dump);
+		cout << "b.size() " << b.size() << endl;
+		cout << "b.nodeCount() " << b.nodeCount() << endl;
+		cout << "Insert Your chars to tree:\n";
+
+		while ((ch = getchar()) != 10)
+			b.add(ch);
+
+		cout << "b.size() " << b.size() << endl;
+		cout << "b.nodeCount() " << b.nodeCount() << endl;
+		cout << "b.min() " << b.min() << endl;
+		cout << "b.max() " << b.max() << endl;
+		getline(cin, dump);
+		while ((ch = getchar()) != 10)
+		{
+			cout << "b.search('" << ch << "') " << b.search(ch) << endl;
+			cout << "b.next('" << ch << "') " << b.next(ch) << endl;
+			cout << "b.prev('" << ch << "') " << b.prev(ch) << endl << endl;
+		}
+		cout << "print tree : \n";
+		b.print();
 	}
-	cout << "print tree : \n";
-	b.print();
 	cout << endl;
 }
