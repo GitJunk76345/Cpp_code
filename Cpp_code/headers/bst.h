@@ -5,12 +5,12 @@
 
 /*
 TODO LIST:
- removing nodes <--
  universal traversal method?
  AVL
 */
 
 #include <iostream>
+#include "definitions.h"
 
 template <typename K>
 struct node
@@ -24,6 +24,19 @@ struct node
 	node(K nkey) : up(nullptr), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
 	node(K nkey, node * newup) : up(newup), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
 
+	side sideofparrent() {
+	/*
+		Returns information about this nodes relation with it's parrent
+	*/
+		if (this->up == nullptr)        // this node has no parrent
+			return ORPHAN;
+		if (this->up->left == this)     // this node is left child of it's parrent
+			return LEFT;
+		if (this->up->right == this)    // this node is right child of it's parrent
+			return RIGHT;
+		else
+			return MISSATTACHED;         // this node points at parrent, that's not pointing back on this node, as it's child
+	}
 	node<K> * search(const K& searchkey) {
 		/*
 			Searches for node containikng searchkey, starting from this node
@@ -38,7 +51,7 @@ struct node
 			else if (nod->key < searchkey)
 				nod = nod->right;
 		}
-		return nullptr;                // key was not found in the tree
+		return nullptr;                // searchkey was not found in the tree
 	}
 	node<K> * searchparrent(const K& searchkey) {
 		/*
@@ -63,16 +76,62 @@ struct node
 			}
 		}
 	}
-	
-	// TODO
-	void remove() {
+	node<K> * remove() {
 	/*
-		Removes node from tree structure - TODO - resolve handling root in bst class 
+		Removes node from tree structure
 	*/
-		// TODO
-		return;
-	}
+		node<K> * replacedby = nullptr;
+		if (this->left != nullptr && this->right != nullptr)       // if has 2 childs
+		{
+			// THIS IMPLEMENTATION REPLACES ONLY WITH PREV NODE FOR NOW
+			// replacing node is going to be disassociated from tree
+			
+			replacedby = this->prev(true);
+			if (replacedby->left != nullptr)
+				replacedby->left->up = replacedby->up;
+			if(replacedby->sideofparrent() == RIGHT)
+				replacedby->up->right = replacedby->left;
+			else if (replacedby->sideofparrent() == LEFT)
+				replacedby->up->left = replacedby->left;
+			
+			// replacing node pointers to neighbouring nodes being set
 
+			replacedby->up = this->up;
+			replacedby->left = this->left;
+			replacedby->right  = this->right;
+
+			// setting neighbours pointers to replacing node 
+			
+			if(this->left != nullptr)
+			 this->left->up = replacedby;
+			this->right->up = replacedby;
+			if (this->up != nullptr)
+			{
+				if (this->sideofparrent() == RIGHT)
+					this->up->right = replacedby;
+				else if (this->sideofparrent() == LEFT)
+					this->up->left = replacedby;
+			}
+		}
+		else if (this->left == nullptr && this->right == nullptr)  // if has no childs
+		{
+			if (sideofparrent() == LEFT)
+				this->up->left = nullptr;
+			else if(sideofparrent() == RIGHT)
+				this->up->right = nullptr;
+		}
+		else                                                       // if has one child
+		{
+			replacedby = (this->left == nullptr ? this->right : this->left);
+			if (sideofparrent() == LEFT)
+				this->up->left = replacedby;
+			else if (sideofparrent() == RIGHT)
+				this->up->right = replacedby;
+			replacedby->up = this->up;
+		}
+		delete this;
+		return replacedby;
+	}
 	node<K> * min(void) {
 		node<K> * nod = this;
 		while (nod->left != nullptr)
@@ -96,7 +155,7 @@ struct node
 			while (tmpnode->left != nullptr)
 				tmpnode = tmpnode->left;     // left offspring of right child is the next in-order node
 		}
-		else
+		else if (!subtreeonly)
 		{
 			if (this->up != nullptr && this->up->left == this)
 				tmpnode = this->up;          // this node's parrent is the next in-order node		
@@ -124,7 +183,7 @@ struct node
 			while (tmpnode->right != nullptr)
 				tmpnode = tmpnode->right;    // right offspring of left child is the prev in-order node
 		}
-		else
+		else if (!subtreeonly)
 		{
 			if (this->up != nullptr && this->up->right == this)
 				tmpnode = this->up;          // this node's parrent is the previous in-order node		
@@ -175,7 +234,6 @@ struct node
 		else
 			return nod->prev();					// found node for key - return in-order predecessor
 	}
-
 	void print(size_t depth) const {
 		for (size_t i = 0; i < depth; ++i)
 			std::cout << "  ";
@@ -226,6 +284,8 @@ public:
 		node<K> * temp = nullptr;
 		size_t level = 0;
 
+		if (root == nullptr)
+			return;
 		while (true)
 		{
 			if (deleted->left != nullptr)      // retry with left subnode
@@ -308,17 +368,30 @@ public:
 		++elements;
 		return true;
 	}
-	
-	//TODO
 	bool fetch(const K& searchkey) {
 		/*
 			Removes 1 key occurence from tree and returns true or false if there is nothing to remove
 		*/
-		// TODO
-		if (true)
-			return true;
+		node <K> * nod = root->search(searchkey);
+		if (nod != nullptr)
+		{	
+			if (nod->occurence > 0)        // just decrease occurence
+			{
+				--(nod->occurence);
+			}
+			if (nod->occurence == 0)                          // delete actual node
+			{
+				if(nod == root)            // if removing root node refresh root pointer
+					root = nod->remove();
+				else
+					nod->remove();
+				--nodes;
+			}
+			--elements;
+			return true;                   // fetch successfull
+		}
 		else
-			return false;
+			return false;                  // not even single occurence of key in whole tree
 	}
 		
 	//WORKING

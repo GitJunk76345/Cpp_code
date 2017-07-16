@@ -1,14 +1,14 @@
 ﻿  main.cpp
 h:\programs\projects\cpp_code\cpp_code\headers\lifo.h(53): warning C4715: 'lifo<char>::push': not all control paths return a value
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(387): warning C4715: 'bst<char>::min': not all control paths return a value
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(395): warning C4715: 'bst<char>::max': not all control paths return a value
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(351): warning C4172: returning address of local variable or temporary
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(357): warning C4172: returning address of local variable or temporary
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(368): warning C4172: returning address of local variable or temporary
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(374): warning C4172: returning address of local variable or temporary
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(461): warning C4715: 'bst<char>::min': not all control paths return a value
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(469): warning C4715: 'bst<char>::max': not all control paths return a value
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(425): warning C4172: returning address of local variable or temporary
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(431): warning C4172: returning address of local variable or temporary
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(442): warning C4172: returning address of local variable or temporary
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(448): warning C4172: returning address of local variable or temporary
 h:\programs\projects\cpp_code\cpp_code\headers\fifo.h(105): warning C4715: 'fifo<char>::pop': not all control paths return a value
 h:\programs\projects\cpp_code\cpp_code\headers\fifo.h(101): warning C4172: returning address of local variable or temporary: tmp
 h:\programs\projects\cpp_code\cpp_code\headers\lifo.h(62): warning C4715: 'lifo<char>::pop': not all control paths return a value
-h:\programs\projects\cpp_code\cpp_code\headers\bst.h(67): warning C4715: 'node<char>::searchparrent': not all control paths return a value
+h:\programs\projects\cpp_code\cpp_code\headers\bst.h(78): warning C4715: 'node<char>::searchparrent': not all control paths return a value
   Cpp_code.vcxproj -> H:\programs\Projects\Cpp_code\Debug\Cpp_code.exe
   Cpp_code.vcxproj -> H:\programs\Projects\Cpp_code\Debug\Cpp_code.pdb (Partial PDB)

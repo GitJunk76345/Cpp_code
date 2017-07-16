@@ -80,32 +80,67 @@ void playfifo(void)
 void playbst(void)
 {
 	using namespace std;
-	string dump;
-	char ch;
+	string input = " ";
+	bst<char> b;
+	
+	while ( input != "stop")
 	{
-		bst<char> b;
-
-		getline(cin, dump);
-		cout << "b.size() " << b.size() << endl;
-		cout << "b.nodeCount() " << b.nodeCount() << endl;
-		cout << "Insert Your chars to tree:\n";
-
-		while ((ch = getchar()) != 10)
-			b.add(ch);
-
-		cout << "b.size() " << b.size() << endl;
-		cout << "b.nodeCount() " << b.nodeCount() << endl;
-		cout << "b.min() " << b.min() << endl;
-		cout << "b.max() " << b.max() << endl;
-		getline(cin, dump);
-		while ((ch = getchar()) != 10)
+		cout << "Input command add <chars> | rem <chars> | prev <chars> | next <chars> | search <chars> | print | stop \n";
+		cin >> input;
+		if (input == "add")
 		{
-			cout << "b.search('" << ch << "') " << b.search(ch) << endl;
-			cout << "b.next('" << ch << "') " << b.next(ch) << endl;
-			cout << "b.prev('" << ch << "') " << b.prev(ch) << endl << endl;
+			cin >> input;
+			for (char c : input)
+			{
+				if (c != ' ')
+					b.add(c);
+			}
 		}
-		cout << "print tree : \n";
-		b.print();
+		else if (input == "rem")
+		{
+			cin >> input;
+			for (char c : input)
+			{
+				if (c != ' ')
+					cout << "fetching(" << c << "') " << b.fetch(c) << endl;
+			}
+		}
+		else if (input == "print")
+		{
+			cout << "\nsize() " << b.size() << endl;
+			cout << "nodeCount() " << b.nodeCount() << endl;
+			cout << "min() " << b.min() << endl;
+			cout << "max() " << b.max() << endl;
+			cout << "printing tree : \n";
+			b.print();
+			cout << endl;
+		}
+		else if (input == "next")
+		{
+			cin >> input;
+			for (char c : input)
+			{
+				if (c != ' ')
+					cout << "b.next('" << c << "') " << b.next(c) << endl;
+			}
+		}
+		else if (input == "prev")
+		{
+			cin >> input;
+			for (char c : input)
+			{
+				if (c != ' ')
+					cout << "b.prev('" << c << "') " << b.prev(c) << endl << endl;
+			}
+		}
+		else if (input == "search")
+		{
+			cin >> input;
+			for (char c : input)
+			{
+				if (c != ' ')
+					cout << "b.search('" << c << "') = " << b.search(c) << endl;
+			}
+		}
 	}
-	cout << endl;
 }
