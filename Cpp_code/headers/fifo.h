@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-Template based fifo (First In First Out) container class implemented as double linked list
+	Template based fifo (First In First Out) container class implemented as double linked list
 */
 
 #include <iostream>
