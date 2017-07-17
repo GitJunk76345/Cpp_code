@@ -14,6 +14,7 @@ void playbst(void);
 int main(int argc, char *argv[])
 {
 	using namespace std;
+
 	char ch;
 	string dump;
 
@@ -26,10 +27,10 @@ int main(int argc, char *argv[])
 		cin >> ch;
 		switch (ch)
 		{
-		case '1': playlifo(); break;
-		case '2': playfifo(); break;
-		case '3': playbst(); break;
-		default: return EXIT_SUCCESS; break;
+			case '1': playlifo(); break;
+			case '2': playfifo(); break;
+			case '3': playbst(); break;
+			default: return EXIT_SUCCESS; break;
 		}
 		system("PAUSE");
 	}
@@ -38,6 +39,8 @@ int main(int argc, char *argv[])
 void playlifo(void)
 {
 	using namespace std;
+	using namespace containers;
+
 	string dump;
 	int size;
 	char ch;
@@ -61,6 +64,8 @@ void playlifo(void)
 void playfifo(void)
 {
 	using namespace std;
+	using namespace containers;
+
 	string dump;
 	char ch;
 	fifo<char> f;
@@ -80,6 +85,8 @@ void playfifo(void)
 void playbst(void)
 {
 	using namespace std;
+	using namespace containers;
+
 	string input = " ";
 	bst<char> b;
 	
