@@ -5,80 +5,84 @@
 
 #include <iostream>
 
-template <typename T>
-class lifo
-{
-	size_t height;
-	size_t capacity;
-	T*     data;
+namespace containers {
 
-public:
-	lifo(size_t size) : capacity(size), height(0) { data = new T[capacity];	}
-	~lifo() { delete[] data; }
+	template <typename T>
+	class lifo
+	{
+		size_t height;
+		size_t capacity;
+		T*     data;
 
-	lifo(const lifo<T>& stack) : height(stack.height), capacity(stack.capacity) {
-		data = new T[capacity];
-		for (size_t i = 0; i < height; ++i)
-			data[i] = stack.data[i];
-	}
-	lifo(lifo<T>&& stack) : height(stack.height), capacity(stack.capacity) {
-		data = stack.data;
-		stack.data = nullptr;
-	}
-	lifo<T>& operator=(const lifo<T>& stack) {
-		height = stack.height;
-		capacity = stack.capacity;
-		delete[] data;
-		data = new T[capacity];
-		for (size_t i = 0; i < height; ++i)
-			data[i] = stack.data[i];
-	}
-	lifo<T>& operator=(lifo<T>&& stack) {
-		height = stack.height;
-		capacity = stack.capacity;
-		delete[] data;
-		data = stack.data;
-		stack.data = nullptr;
-	}
+	public:
+		lifo(size_t size) : capacity(size), height(0) { data = new T[capacity]; }
+		~lifo() { delete[] data; }
 
-	const T& push(const T& elem) {
-		if (height < capacity)
-		{
-			data[height] = elem;
-			++height;
-			return data[height - 1];
+		lifo(const lifo<T>& stack) : height(stack.height), capacity(stack.capacity) {
+			data = new T[capacity];
+			for (size_t i = 0; i < height; ++i)
+				data[i] = stack.data[i];
 		}
-		else
-			std::cerr << "Stack overflow\n";    //error
-	}
-	T& pop() {
-		if (height > 0)
-		{
-			--height;
-			return data[height];
+		lifo(lifo<T>&& stack) : height(stack.height), capacity(stack.capacity) {
+			data = stack.data;
+			stack.data = nullptr;
 		}
-		else
-			std::cerr << "Stack empty\n";	//error
-	}
-	const T& peek() const {
-		if (height > 0)
-		{
-			return data[height-1];
+		lifo<T>& operator=(const lifo<T>& stack) {
+			height = stack.height;
+			capacity = stack.capacity;
+			delete[] data;
+			data = new T[capacity];
+			for (size_t i = 0; i < height; ++i)
+				data[i] = stack.data[i];
 		}
-		else
-			std::cerr << "Stack empty\n";	//error
-	}
-	size_t getCapacity() const { return capacity; }
-	size_t getFree() const { return capacity - height; }
-	size_t getHeight() const { return height; }
-	bool isEmpty() const { return height == 0; }
-	bool isFull() const { return height == capacity; }
-};
+		lifo<T>& operator=(lifo<T>&& stack) {
+			height = stack.height;
+			capacity = stack.capacity;
+			delete[] data;
+			data = stack.data;
+			stack.data = nullptr;
+		}
 
-// Dumps and prints lifo content
-template <class T>
-void dumpstack(lifo<T>& stack) {
-	while (!stack.isEmpty())
-		std::cout << stack.pop();
-	std::cout << std::endl;
+		const T& push(const T& elem) {
+			if (height < capacity)
+			{
+				data[height] = elem;
+				++height;
+				return data[height - 1];
+			}
+			else
+				std::cerr << "Stack overflow\n";    //error
+		}
+		T& pop() {
+			if (height > 0)
+			{
+				--height;
+				return data[height];
+			}
+			else
+				std::cerr << "Stack empty\n";	//error
+		}
+		const T& peek() const {
+			if (height > 0)
+			{
+				return data[height - 1];
+			}
+			else
+				std::cerr << "Stack empty\n";	//error
+		}
+		size_t getCapacity() const { return capacity; }
+		size_t getFree() const { return capacity - height; }
+		size_t getHeight() const { return height; }
+		bool isEmpty() const { return height == 0; }
+		bool isFull() const { return height == capacity; }
+	};
+
+	// Dumps and prints lifo content
+	template <class T>
+	void dumpstack(lifo<T>& stack) {
+		while (!stack.isEmpty())
+			std::cout << stack.pop();
+		std::cout << std::endl;
+	}
+
 }
