@@ -90,7 +90,7 @@ void playbst(void)
 	string input = " ";
 	bst<char> b;
 	
-	while ( input != "stop")
+	while (true)
 	{
 		cout << "Input command add <chars> | rem <chars> | prev <chars> | next <chars> | search <chars> | print | stop \n";
 		cin >> input;
@@ -149,5 +149,9 @@ void playbst(void)
 					cout << "b.search('" << c << "') = " << b.search(c) << endl;
 			}
 		}
+		else if (input == "stop" || input == "0")
+			break;
+		else
+			cout << "UNKNOWN COMMAND: " << input << endl;
 	}
 }

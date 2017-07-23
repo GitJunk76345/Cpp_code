@@ -1,0 +1,53 @@
+# specific files
+Cpp_code.VC.db
+
+
+# binaries
+*.exe
+*.o
+*.obj
+
+# archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# logs
+*.log
+*.tlog
+
+# VS detritus
+*.pdb
+*.idb
+*.user
+*.suo
+*.opensdf
+*.sdf
+*.ilk
+*.ipch
+*.lastbuildstate
+*.unsuccessfulbuild
+*.exp
+*.manifest
+*.manifest.res
+*manifest.rc
+*.ncb
+*.filters
+
+# misc
+*.bak
+
+# VS temporary paths
+x64/
+Debug/
+Release/
+
+####
+# UNKNOWN: recommended by others, but I can't discover what these files are
+#
+# ...none. Everything is now explained.

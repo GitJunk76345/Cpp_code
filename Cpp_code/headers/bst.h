@@ -14,18 +14,19 @@ TODO LIST:
 #include "definitions.h"
 
 namespace containers {
-
+	
 	template <typename K>
 	struct node
 	{
 		node<K> * up;          // parrent node
 		node<K> * left;        // left child
 		node<K> * right;       // right
+		size_t height;		   // height of the subtree
 		K key;                 // node content
 		size_t occurence;      // number of keys in the node
-
-		node(K nkey) : up(nullptr), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
-		node(K nkey, node * newup) : up(newup), left(nullptr), right(nullptr), key(nkey), occurence(0) {}
+		
+		node(K nkey) : up(nullptr), left(nullptr), right(nullptr), height(0), key(nkey), occurence(0) {}
+		node(K nkey, node * newup) : up(newup), left(nullptr), right(nullptr), height(0), key(nkey), occurence(0) {}
 
 		side sideofparrent() {
 			/*
@@ -79,62 +80,107 @@ namespace containers {
 				}
 			}
 		}
-		node<K> * remove() {
+
+		int balancefactor() {
+			int rh = this->right != nullptr ? this->right->height : -1;
+			int lh = this->left  != nullptr ? this->left->height : -1;
+
+			return rh - lh;
+		}
+		node<K> *  leftrot() {
+			// NEW UNTESTED
+			node<K> * swap = this->right;
+			swap->up = this->up;
+			if (this->sideofparrent() == LEFT)
+				this->up->left = swap;
+			if (this->sideofparrent() == RIGHT)
+				this->up->right = swap;
+			this->up = swap;
+			this->right = swap->left;
+			if(this->right != nullptr)
+				this->right->up = this;
+			swap->left = this;
+			updateheights();
+			return swap;
+		}
+		node<K> *  rightrot() {
+			// NEW UNTESTED
+			node<K> * swap = this->left;
+			swap->up = this->up;
+			if (this->sideofparrent() == LEFT)
+				this->up->left = swap;
+			if (this->sideofparrent() == RIGHT)
+				this->up->right = swap;
+			this->up = swap;
+			this->left = swap->right;
+			if (this->left != nullptr)
+				this->left->up = this;
+			swap->right = this;
+			updateheights();
+			return swap;
+		}
+		node<K> * cutnode(bool returnreplacer = false) {
 			/*
-				Removes node from tree structure
+				cuts node from tree structure
 			*/
-			node<K> * replacedby = nullptr;
+			node<K> * replacer = nullptr;
 			if (this->left != nullptr && this->right != nullptr)       // if has 2 childs
 			{
-				// THIS IMPLEMENTATION REPLACES ONLY WITH PREV NODE FOR NOW
-				// replacing node is going to be disassociated from tree
+				// some code to determine which replacer to choose
+				if (true)                                        // replace with next()
+					replacer = this->next(true)->cutnode();      // cut next from subtree
+				else                                             // replace with prev()
+					replacer = this->prev(true)->cutnode();      // cut prev from subtree
 
-				replacedby = this->prev(true);
-				if (replacedby->left != nullptr)
-					replacedby->left->up = replacedby->up;
-				if (replacedby->sideofparrent() == RIGHT)
-					replacedby->up->right = replacedby->left;
-				else if (replacedby->sideofparrent() == LEFT)
-					replacedby->up->left = replacedby->left;
-
-				// replacing node pointers to neighbouring nodes being set
-
-				replacedby->up = this->up;
-				replacedby->left = this->left;
-				replacedby->right = this->right;
-
-				// setting neighbours pointers to replacing node 
-
-				if (this->left != nullptr)
-					this->left->up = replacedby;
-				this->right->up = replacedby;
-				if (this->up != nullptr)
-				{
-					if (this->sideofparrent() == RIGHT)
-						this->up->right = replacedby;
-					else if (this->sideofparrent() == LEFT)
-						this->up->left = replacedby;
-				}
-			}
+				// assume pointers for replacer
+				replacer->left = this->left;
+				replacer->right = this->right;
+				replacer->up = this->up;
+				
+				// assume pointers for replacer's neighbourhood
+				if (replacer->left != nullptr)
+					replacer->left->up = replacer;
+				if (replacer->right != nullptr)
+					replacer->right->up = replacer;
+				if (sideofparrent() == LEFT)
+					replacer->up->left = replacer;
+				else if (sideofparrent() == RIGHT)
+					replacer->up->right = replacer;
+				replacer->updateheights();
+}
 			else if (this->left == nullptr && this->right == nullptr)  // if has no childs
 			{
 				if (sideofparrent() == LEFT)
 					this->up->left = nullptr;
 				else if (sideofparrent() == RIGHT)
 					this->up->right = nullptr;
+				this->up->updateheights();
 			}
 			else                                                       // if has one child
 			{
-				replacedby = (this->left == nullptr ? this->right : this->left);
+				replacer = (this->left == nullptr ? this->right : this->left);
 				if (sideofparrent() == LEFT)
-					this->up->left = replacedby;
+					this->up->left = replacer;
 				else if (sideofparrent() == RIGHT)
-					this->up->right = replacedby;
-				replacedby->up = this->up;
+					this->up->right = replacer;
+				replacer->up = this->up;
+				this->up->updateheights();
 			}
-			delete this;
-			return replacedby;
+			if (returnreplacer)
+				return replacer;
+			else
+				return this;
 		}
+		node<K> * remove() {
+			/*
+				Removes node from tree structure, returns node that replaced it's place
+			*/
+
+			node<K> * replacer = this->cutnode(true);
+			delete this;
+			return replacer;
+		}
+	
 		node<K> * min(void) {
 			/*
 				Finds smallest node in this nodes subtree
@@ -243,13 +289,36 @@ namespace containers {
 			else
 				return nod->prev();					// found node for key - return in-order predecessor
 		}
+
+		void updateheights() {
+			/*
+				Updates heights of nodes from this up to root or until no difference between new and old height is occuring
+			*/
+
+			int lh, rh, nh;                                                    // left , right & new heights 
+			node<K> * nod = this;
+			while (nod != nullptr)
+			{
+				lh = nod->left == nullptr ? -1 : nod->left->height;     // does parrent have left child
+				rh = nod->right == nullptr ? -1 : nod->right->height;   // does parrent have right child
+
+				//  if branch that's been modified is higher -> set height as modified branch height + 1
+				
+				nh = (lh > rh ? lh : rh) + 1;
+				if ( nh != nod->height)
+					nod->height = nh;
+				else
+					break;                             // no change in node height -> no need to update height of ancestors
+				nod = nod->up;                         // process parrent node
+			}
+		}
 		void print(size_t depth) const {
 			/*
 				Print this node's key
 			*/
 			for (size_t i = 0; i < depth; ++i)
 				std::cout << "  ";
-			std::cout << key << " (" << occurence << ")" << std::endl;
+			std::cout << key << " (" << occurence << ")" << " [" << height << "]" << std::endl;
 		}
 		void printall(int order, size_t depth) const {
 			/*
@@ -345,7 +414,55 @@ namespace containers {
 			return nodes;
 		}
 
-		//WORKING YET LOOKS UGLY
+		// TODO WORK IN PROGRESS
+		void avlcheck(node<K> * checkednode ) {
+			/*
+				some inconsistencies occuring - incorrect height may happen after AVL check
+			*/
+			node<K> * nod;
+			while (checkednode != nullptr)
+			{
+				if (checkednode->balancefactor() > 1)            // tree is right heavy
+				{
+					if (checkednode->right->balancefactor() < 0) // tree's right subtree is left heavy
+					{
+						// double left rotation
+						checkednode->right->rightrot();
+						nod = checkednode->leftrot();
+						if (nod->up == nullptr)
+							root = nod;
+					}
+					else
+					{
+						// single left rotation
+						nod = checkednode->leftrot();
+						if (nod->up == nullptr)
+							root = nod;
+					}
+				}
+				else if (checkednode->balancefactor() < -1)      // tree is left heavy
+				{
+					if (checkednode->left->balancefactor() > 0)  // tree's left subtree is right heavy
+					{
+						// double right rotation
+						checkednode->left->leftrot();
+						nod = checkednode->rightrot();
+						if (nod->up == nullptr)
+							root = nod;
+					}
+					else
+					{
+						// single right rotation
+						nod = checkednode->rightrot();
+						if (nod->up == nullptr)
+							root = nod;
+					}
+				}
+				checkednode = checkednode->up;
+			}
+		}
+
+		// WORKING YET LOOKS UGLY
 		size_t add(const K& key) {
 			/*
 				Adds element and returns amount of such elements in tree
@@ -378,6 +495,8 @@ namespace containers {
 						nod = nodparrent->right = new node<K>(key, nodparrent);
 				}
 				++nodes;
+				nod->up->updateheights();
+				avlcheck(nod);            // AVL check
 			}
 			++(nod->occurence);
 			++elements;
@@ -483,5 +602,4 @@ namespace containers {
 				return root->max()->key;
 		}
 	};
-
 }
