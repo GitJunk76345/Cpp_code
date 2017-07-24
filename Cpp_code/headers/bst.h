@@ -295,21 +295,14 @@ namespace containers {
 				Updates heights of nodes from this up to root or until no difference between new and old height is occuring
 			*/
 
-			int lh, rh, nh;                                                    // left , right & new heights 
+			int lh, rh;                                                    // left , right
 			node<K> * nod = this;
 			while (nod != nullptr)
 			{
 				lh = nod->left == nullptr ? -1 : nod->left->height;     // does parrent have left child
 				rh = nod->right == nullptr ? -1 : nod->right->height;   // does parrent have right child
-
-				//  if branch that's been modified is higher -> set height as modified branch height + 1
-				
-				nh = (lh > rh ? lh : rh) + 1;
-				if ( nh != nod->height)
-					nod->height = nh;
-				else
-					break;                             // no change in node height -> no need to update height of ancestors
-				nod = nod->up;                         // process parrent node
+				nod->height = (lh > rh ? lh : rh) + 1;                  //  set height as higher branch height + 1
+				nod = nod->up;                                          // process parrent node
 			}
 		}
 		void print(size_t depth) const {
@@ -326,25 +319,25 @@ namespace containers {
 			*/
 			switch (order) {
 			case PREORDER: //print preorder
-				print(depth);
-				if (this->left != nullptr)
-					left->printall(order, depth + 1);
 				if (this->right != nullptr)
 					right->printall(order, depth + 1);
+				if (this->left != nullptr)
+					left->printall(order, depth + 1);
+				print(depth);
 				break;
 			case INORDER: //print inorder
-				if (this->left != nullptr)
-					left->printall(order, depth + 1);
-				print(depth);
 				if (this->right != nullptr)
 					right->printall(order, depth + 1);
+				print(depth);
+				if (this->left != nullptr)
+					left->printall(order, depth + 1);
 				break;
 			case POSTORDER:	//print postorder
-				if (this->left != nullptr)
-					left->printall(order, depth + 1);
+				print(depth);
 				if (this->right != nullptr)
 					right->printall(order, depth + 1);
-				print(depth);
+				if (this->left != nullptr)
+					left->printall(order, depth + 1);
 				break;
 			}
 			return;
