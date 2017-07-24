@@ -1,13 +1,12 @@
 #pragma once
 /*
-	Template based, BST (Binary Search Tree) container class.
+	Template based, AVL BST (Binary Search Tree) container class.
 	This container requires it's parameter typer to have operators of comparsion and relation defined
 */
 
 /*
-TODO LIST:
- universal traversal method?
- AVL
+	TODO LIST:
+	maybe code refactoring, but for now it works
 */
 
 #include <iostream>
@@ -87,8 +86,57 @@ namespace containers {
 
 			return rh - lh;
 		}
-		node<K> *  leftrot() {
-			// NEW UNTESTED
+		void avlcheck(bst<K> * tree) {
+			/*
+				Performs balance factor check and applies adequate rotation if necessary
+			*/
+			node<K> * checkednode = this;
+			node<K> * nod;
+			while (checkednode != nullptr)                       // check all nodes on path to root
+			{
+				if (checkednode->balancefactor() > 1)            // tree is right heavy
+				{
+					if (checkednode->right->balancefactor() < 0) // tree's right subtree is left heavy
+					{
+						// double left rotation
+						checkednode->right->rightrot();
+						nod = checkednode->leftrot();
+						if (nod->up == nullptr)
+							tree->root = nod;
+					}
+					else
+					{
+						// single left rotation
+						nod = checkednode->leftrot();
+						if (nod->up == nullptr)
+							tree->root = nod;
+					}
+				}
+				else if (checkednode->balancefactor() < -1)      // tree is left heavy
+				{
+					if (checkednode->left->balancefactor() > 0)  // tree's left subtree is right heavy
+					{
+						// double right rotation
+						checkednode->left->leftrot();
+						nod = checkednode->rightrot();
+						if (nod->up == nullptr)
+							tree->root = nod;
+					}
+					else
+					{
+						// single right rotation
+						nod = checkednode->rightrot();
+						if (nod->up == nullptr)
+							tree->root = nod;
+					}
+				}
+				checkednode = checkednode->up;                  // check parrent node
+			}
+		}
+		node<K> * leftrot() {
+			/*
+				Rotates this node left 
+			*/
 			node<K> * swap = this->right;
 			swap->up = this->up;
 			if (this->sideofparrent() == LEFT)
@@ -103,8 +151,10 @@ namespace containers {
 			updateheights();
 			return swap;
 		}
-		node<K> *  rightrot() {
-			// NEW UNTESTED
+		node<K> * rightrot() {
+			/*
+				Rotates this node right
+			*/
 			node<K> * swap = this->left;
 			swap->up = this->up;
 			if (this->sideofparrent() == LEFT)
@@ -119,7 +169,7 @@ namespace containers {
 			updateheights();
 			return swap;
 		}
-		node<K> * cutnode(bool returnreplacer = false) {
+		node<K> * cutnode(bst<K> * tree, bool returnreplacer = false) {
 			/*
 				cuts node from tree structure
 			*/
@@ -128,9 +178,9 @@ namespace containers {
 			{
 				// some code to determine which replacer to choose
 				if (true)                                        // replace with next()
-					replacer = this->next(true)->cutnode();      // cut next from subtree
+					replacer = this->next(true)->cutnode(tree);      // cut next from subtree
 				else                                             // replace with prev()
-					replacer = this->prev(true)->cutnode();      // cut prev from subtree
+					replacer = this->prev(true)->cutnode(tree);      // cut prev from subtree
 
 				// assume pointers for replacer
 				replacer->left = this->left;
@@ -147,6 +197,7 @@ namespace containers {
 				else if (sideofparrent() == RIGHT)
 					replacer->up->right = replacer;
 				replacer->updateheights();
+				replacer->up->avlcheck(tree);
 }
 			else if (this->left == nullptr && this->right == nullptr)  // if has no childs
 			{
@@ -155,6 +206,7 @@ namespace containers {
 				else if (sideofparrent() == RIGHT)
 					this->up->right = nullptr;
 				this->up->updateheights();
+				this->up->avlcheck(tree);
 			}
 			else                                                       // if has one child
 			{
@@ -165,20 +217,22 @@ namespace containers {
 					this->up->right = replacer;
 				replacer->up = this->up;
 				this->up->updateheights();
+				this->up->avlcheck(tree);
 			}
 			if (returnreplacer)
 				return replacer;
 			else
 				return this;
 		}
-		node<K> * remove() {
+		void remove(bst<K> * tree){
 			/*
-				Removes node from tree structure, returns node that replaced it's place
+				Removes node from tree structure updates tree's root if ncessery
 			*/
-
-			node<K> * replacer = this->cutnode(true);
+			
+			node<K> * replacer = this->cutnode(tree,true);
+			if (this->up == nullptr)
+				tree->root = replacer;
 			delete this;
-			return replacer;
 		}
 	
 		node<K> * min(void) {
@@ -350,6 +404,7 @@ namespace containers {
 		size_t nodes;	  // number of nodes in tree
 		size_t elements;  // number of elements - sum of all occurences in all nodes
 		node<K> * root;   // root node
+		friend struct node<K>;
 
 	public:
 		bst() : nodes(0), elements(0), root(nullptr) {}
@@ -407,56 +462,8 @@ namespace containers {
 			return nodes;
 		}
 
-		// TODO WORK IN PROGRESS
-		void avlcheck(node<K> * checkednode ) {
-			/*
-				some inconsistencies occuring - incorrect height may happen after AVL check
-			*/
-			node<K> * nod;
-			while (checkednode != nullptr)
-			{
-				if (checkednode->balancefactor() > 1)            // tree is right heavy
-				{
-					if (checkednode->right->balancefactor() < 0) // tree's right subtree is left heavy
-					{
-						// double left rotation
-						checkednode->right->rightrot();
-						nod = checkednode->leftrot();
-						if (nod->up == nullptr)
-							root = nod;
-					}
-					else
-					{
-						// single left rotation
-						nod = checkednode->leftrot();
-						if (nod->up == nullptr)
-							root = nod;
-					}
-				}
-				else if (checkednode->balancefactor() < -1)      // tree is left heavy
-				{
-					if (checkednode->left->balancefactor() > 0)  // tree's left subtree is right heavy
-					{
-						// double right rotation
-						checkednode->left->leftrot();
-						nod = checkednode->rightrot();
-						if (nod->up == nullptr)
-							root = nod;
-					}
-					else
-					{
-						// single right rotation
-						nod = checkednode->rightrot();
-						if (nod->up == nullptr)
-							root = nod;
-					}
-				}
-				checkednode = checkednode->up;
-			}
-		}
-
 		// WORKING YET LOOKS UGLY
-		size_t add(const K& key) {
+		bool add(const K& key) {
 			/*
 				Adds element and returns amount of such elements in tree
 			*/
@@ -489,7 +496,7 @@ namespace containers {
 				}
 				++nodes;
 				nod->up->updateheights();
-				avlcheck(nod);            // AVL check
+				nod->avlcheck(this);            // AVL check
 			}
 			++(nod->occurence);
 			++elements;
@@ -508,10 +515,7 @@ namespace containers {
 				}
 				if (nod->occurence == 0)                          // delete actual node
 				{
-					if (nod == root)            // if removing root node refresh root pointer
-						root = nod->remove();
-					else
-						nod->remove();
+					nod->remove(this);         // removing root
 					--nodes;
 				}
 				--elements;
